@@ -13,7 +13,7 @@ class Intro extends Phaser.Scene {
             volume: 0.3,
             loop: true
        });
-       IntroScene.setScale(0.75);
+       IntroScene.setScale(2);
        this.input.once('pointerdown',() =>{
         this.tweens.add({
             targets: song,
@@ -35,6 +35,11 @@ class Intro extends Phaser.Scene {
 class Level1 extends Phaser.Scene {
     constructor(){
         super('level1');
+    }
+    handleInteraction(dandy, element) {
+        // Perform the desired interaction
+        element.destroy(); // Destroy the element when touched
+        // Add your custom interaction code here
     }
     preload(){
         this.load.image('Scene 1', './Scene 1.png');
@@ -69,10 +74,11 @@ class Level1 extends Phaser.Scene {
         for (let i = 0; i < 20; i++) {
             let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
             let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
-            let element = this.add.image(x, y, 'coin');
+            let element = this.physics.add.image(x, y, 'coin');
             element.setScale(0.2);
             // Set the origin to the center of the element for better positioning
             element.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
         }
     }
     update(){
