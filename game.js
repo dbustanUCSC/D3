@@ -93,10 +93,10 @@ class Level1 extends Phaser.Scene {
             element.setScale(0.2);
             // Set the origin to the center of the element for better positioning
             element.setOrigin(0.5);
-            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteractionElement, null, this);
         }
     }
-    handleInteraction(dandy, element) {
+    handleInteractionElement(dandy, element) {
         element.destroy(); 
         this.count++;
         this.scoreText.setText('Score: ' + this.count + '/20');
@@ -118,6 +118,7 @@ class Level1 extends Phaser.Scene {
             });
         }
     }
+    
     update(){
         
         this.scoreText.x = this.Dandy.x - 100;
@@ -189,13 +190,16 @@ class Level2 extends Phaser.Scene{
         super('level2')
         this.count = 0;
         this.song = null;
+        this.var = 0;
     }
     preload(){
         this.load.audio('level2song','./assets/level2.mp3');
         this.load.image('Scene 2', './assets/Scene 2.png');
         this.load.image('Cookie', './assets/Cookie.png');
+        this.load.image('arrow', './assets/Temp Arrow.png')
     }
     create(){
+    
         this.song = this.sound.add('level2song');
         this.song.play({
             volume: 0.05,
@@ -217,7 +221,7 @@ class Level2 extends Phaser.Scene{
         this.add.image(0, 1440, 'Scene 2').setOrigin(0).setFlipY(true);
         this.add.image(2560, 1440, 'Scene 2').setOrigin(0).setFlipX(true).setFlipY(true);
         this.Dandy.setCollideWorldBounds(true);
-        this.scoreText = this.add.text(0, 0, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        this.scoreText = this.add.text(0, 0, 'Score: 0/100', { fontSize: '32px', fill: '#000000' });
         //this.container.add(this.scoreText);
         this.cameras.main.setZoom(4);
         this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560 *2, 1440*2);
@@ -237,24 +241,35 @@ class Level2 extends Phaser.Scene{
         this.count = 0;
         this.scoreText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
         this.scoreText.setDepth(1);*/
-        for (let i = 0; i < 20; i++) {
+        this.timerText = this.add.text(this.Dandy.x, this.Dandy, 'Time: 0', { fontSize: '32px', fill: '#ffffff' }).setAlpha(0);
+        for (let i = 0; i < 50; i++) {
             let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
             let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
             let element = this.physics.add.image(x, y, 'Cookie');
             element.setScale(0.2);
-            // Set the origin to the center of the element for better positioning
             element.setOrigin(0.5);
-            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteractionElement, null, this);
+        }
+        for (let i = 0; i < 10; i++){
+            let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            let arrow = this.physics.add.image(x, y, 'arrow');
+            arrow.setScale(0.2);
+            arrow.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, arrow, this.handleInteractionArrow, null, this);
         }
     }
-    handleInteraction(dandy, element) {
+    handleInteractionElement(dandy, element) {
         element.destroy(); 
         this.count++;
-        this.scoreText.setText('Score: ' + this.count + '/20');
-        if (this.count == 10){
+        this.scoreText.setText('Score: ' + this.count + '/100');
+        if (this.count >= 50 && this.var != 1){
+            this.var++;
             this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('#FFFFFF').setFontStyle('bold');
-            
-        } else if (this.count == 20){
+
+        }
+        if (this.count >= 100){
+            console.debug("am i being ruN?")
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -269,8 +284,35 @@ class Level2 extends Phaser.Scene{
             });
         }
     }
+    handleInteractionArrow(dandy, arrow){
+        arrow.destroy();
+        this.count+= 5;
+        this.scoreText.setText('Score: ' + this.count + '/100');
+        if (this.count >= 50 && this.var != 1){
+            this.var++;
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('#FFFFFF').setFontStyle('bold');
+
+        }
+        if (this.count >= 100){
+            console.debug("am i being ruN?")
+            this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene2', {count: this.count}); 
+            });
+        }
+         
+    }
+    
     update(){
-        
+        this.elapsedTime;
         this.scoreText.x = this.Dandy.x - 100;
         this.scoreText.y = this.Dandy.y - 100;
         this.Dandy.setMaxVelocity(200);
@@ -294,8 +336,7 @@ class Level2 extends Phaser.Scene{
         } else {
             this.Dandy.setAccelerationY(0);
         }
-        //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 50){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -338,11 +379,13 @@ class Level3 extends Phaser.Scene{
         super('level3')
         this.count = 0;
         this.song = null;
+        this.var = 0;
     }
     preload(){
         this.load.audio('level3song','./assets/level3.mp3');
         this.load.image('Scene 3', './assets/Scene 3.png');
         this.load.image('Note', './assets/Music Note.png');
+        this.load.image('arrow2', './assets/Perm arrow.png')
     }
     create(){
         this.song = this.sound.add('level3song');
@@ -366,7 +409,7 @@ class Level3 extends Phaser.Scene{
         this.add.image(0, 1440, 'Scene 3').setOrigin(0).setFlipY(true);
         this.add.image(2560, 1440, 'Scene 3').setOrigin(0).setFlipX(true).setFlipY(true);
         this.Dandy.setCollideWorldBounds(true);
-        this.scoreText = this.add.text(0, 0, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        this.scoreText = this.add.text(0, 0, 'Score: 0/200', { fontSize: '32px', fill: '#000000' });
         //this.container.add(this.scoreText);
         this.cameras.main.setZoom(4);
         this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560 *2, 1440*2);
@@ -386,24 +429,90 @@ class Level3 extends Phaser.Scene{
         this.count = 0;
         this.scoreText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
         this.scoreText.setDepth(1);*/
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 100; i++) {
             let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
             let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
             let element = this.physics.add.image(x, y, 'Note');
             element.setScale(0.2);
             // Set the origin to the center of the element for better positioning
             element.setOrigin(0.5);
-            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteractionElement, null, this);
+        }
+        for (let i = 0; i < 10; i++){
+            let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            let arrow = this.physics.add.image(x, y, 'arrow');
+            arrow.setScale(0.2);
+            arrow.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, arrow, this.handleInteractionArrow, null, this);
+        }
+        for (let i = 0; i < 5; i++){
+            let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            let arrow = this.physics.add.image(x, y, 'arrow2');
+            arrow.setScale(0.2);
+            arrow.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, arrow, this.handleInteractionArrow2, null, this);
+        }
+
+    }
+    handleInteractionArrow2(dandy, arrow2){
+        arrow2.destroy();
+        this.count+= 10;
+        this.scoreText.setText('Score: ' + this.count + '/200');
+        if (this.count >= 100 && this.var != 1){
+            this.var++;
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('#FFFFFF').setFontStyle('bold');
+        }
+        if (this.count >= 200){
+            console.debug("am i being ruN?")
+            this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene2', {count: this.count}); 
+            });
         }
     }
-    handleInteraction(dandy, element) {
+    handleInteractionArrow(dandy, arrow){
+        arrow.destroy();
+        this.count+= 5;
+        this.scoreText.setText('Score: ' + this.count + '/200');
+        if (this.count >= 100 && this.var != 1){
+            this.var++;
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('#FFFFFF').setFontStyle('bold');
+        }
+        if (this.count >= 200){
+            console.debug("am i being ruN?")
+            this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene2', {count: this.count}); 
+            });
+        }
+         
+    }
+    handleInteractionElement(dandy, element) {
         element.destroy(); 
         this.count++;
-        this.scoreText.setText('Score: ' + this.count + '/20');
-        if (this.count == 10){
-            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+        this.scoreText.setText('Score: ' + this.count + '/200');
+        if (this.count >= 100){
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
             
-        } else if (this.count == 20){
+        } else if (this.count >= 200){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -444,7 +553,7 @@ class Level3 extends Phaser.Scene{
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 100){
             this.tweens.add({
                 targets: this.song,
                 volume: 0,
@@ -471,7 +580,7 @@ class LevelEnd3 extends Phaser.Scene {
         const count = this.scene.settings.data.count;
         this.add.image(0, 0, 'completescreen').setOrigin(0).setScale(2);
         this.EndScore = this.add.text(this.cameras.main.centerX+200, this.cameras.main.centerY + 100 , count).setFontSize(300)
-        this.Msg = this.add.text(this.cameras.main.centerX - 2300, this.cameras.main.centerY + 700, "Press Space to go to next level!").setFontSize(250)
+        this.Msg = this.add.text(this.cameras.main.centerX - 2300, this.cameras.main.centerY + 700, "Press Space to start over!").setFontSize(250)
     }
     update(){
         if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))){
