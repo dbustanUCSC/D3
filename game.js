@@ -3,8 +3,8 @@ class Intro extends Phaser.Scene {
         super('intro');
     }
     preload(){
-        this.load.image('Intro Scene','./Intro Scene.png')
-        this.load.audio('Menu Song','./Menu song.wav')
+        this.load.image('Intro Scene','./assets/Intro Scene.png')
+        this.load.audio('Menu Song','./assets/Menu song.wav')
     }
     create(){
        let IntroScene = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'Intro Scene');
@@ -39,10 +39,10 @@ class Level1 extends Phaser.Scene {
     }
     
     preload(){
-        this.load.image('Scene 1', './Scene 1.png');
-        this.load.audio('Xiu Xiu','./Normal Love.mp3');
-        this.load.image('Dandy', './Main Character.png');
-        this.load.image('coin', './Coint.png');
+        this.load.image('Scene 1', './assets/Scene 1.png');
+        this.load.audio('Xiu Xiu','./assets/Normal Love.mp3');
+        this.load.image('Dandy', './assets/Main Character.png');
+        this.load.image('coin', './assets/Coint.png');
     }
     create(){
         this.song = this.sound.add('Xiu Xiu');
@@ -144,7 +144,7 @@ class Level1 extends Phaser.Scene {
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -166,7 +166,7 @@ class LevelEnd1 extends Phaser.Scene {
         super('EndScene1');
     }
     preload(){
-        this.load.image('completescreen','./Complete Screen.png')
+        this.load.image('completescreen','./assets/Complete Screen.png')
     }
     create(){
         const count = this.scene.settings.data.count;
@@ -191,9 +191,9 @@ class Level2 extends Phaser.Scene{
         this.song = null;
     }
     preload(){
-        this.load.audio('level2song','./level2.mp3');
-        this.load.image('Scene 2', './Scene 2.png');
-        this.load.image('Cookie', './Cookie.png');
+        this.load.audio('level2song','./assets/level2.mp3');
+        this.load.image('Scene 2', './assets/Scene 2.png');
+        this.load.image('Cookie', './assets/Cookie.png');
     }
     create(){
         this.song = this.sound.add('level2song');
@@ -295,7 +295,7 @@ class Level2 extends Phaser.Scene{
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -340,9 +340,9 @@ class Level3 extends Phaser.Scene{
         this.song = null;
     }
     preload(){
-        this.load.audio('level3song','./level3.mp3');
-        this.load.image('Scene 3', './Scene 3.png');
-        this.load.image('Note', './Music Note.png');
+        this.load.audio('level3song','./assets/level3.mp3');
+        this.load.image('Scene 3', './assets/Scene 3.png');
+        this.load.image('Note', './assets/Music Note.png');
     }
     create(){
         this.song = this.sound.add('level3song');
@@ -444,7 +444,7 @@ class Level3 extends Phaser.Scene{
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
             this.tweens.add({
                 targets: this.song,
                 volume: 0,
@@ -483,10 +483,6 @@ class LevelEnd3 extends Phaser.Scene {
     }
 }
 new Phaser.Game({
-    loader: {
-        baseURL: 'assets/'
-    },
-
     physics: {
         default: 'arcade',
         arcade: {
