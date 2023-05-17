@@ -10,7 +10,7 @@ class Intro extends Phaser.Scene {
        let IntroScene = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'Intro Scene');
        let song = this.sound.add('Menu Song');
        song.play({
-            volume: 0.3,
+            volume: 0.05,
             loop: true
        });
        IntroScene.setScale(2);
@@ -18,7 +18,7 @@ class Intro extends Phaser.Scene {
         this.tweens.add({
             targets: song,
             volume: 0,
-            duration: 1000,
+            duration: 900,
             onComplete: () => {
               song.stop();
             }
@@ -34,15 +34,22 @@ class Intro extends Phaser.Scene {
 class Level1 extends Phaser.Scene {
     constructor(){
         super('level1');
+        this.song = null;
         this.count = 0;
     }
     
     preload(){
         this.load.image('Scene 1', './Scene 1.png');
+        this.load.audio('Xiu Xiu','./Normal Love.mp3');
         this.load.image('Dandy', './Main Character.png');
         this.load.image('coin', './Coint.png');
     }
     create(){
+        this.song = this.sound.add('Xiu Xiu');
+        this.song.play({
+            volume: 0.05,
+            loop: true
+        });
         this.cameras.main.fadeIn(1000);
         this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
         this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
@@ -94,10 +101,18 @@ class Level1 extends Phaser.Scene {
         this.count++;
         this.scoreText.setText('Score: ' + this.count + '/20');
         if (this.count == 10){
-            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
             
         } else if (this.count == 20){
-            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.fadeOut(1000);
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              }); 
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('EndScene1', {count: this.count}); 
             });
@@ -131,8 +146,16 @@ class Level1 extends Phaser.Scene {
         //change this
         if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
             this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 900,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
             this.cameras.main.once('camerafadeoutcomplete', () => {
-                this.scene.start('EndScene1', {count: this.count, level: this.level}); 
+                this.scene.start('EndScene1', {count: this.count}); 
             });
         }
     }
@@ -165,12 +188,19 @@ class Level2 extends Phaser.Scene{
     constructor(){
         super('level2')
         this.count = 0;
+        this.song = null;
     }
     preload(){
+        this.load.audio('level2song','./level2.mp3');
         this.load.image('Scene 2', './Scene 2.png');
         this.load.image('Cookie', './Cookie.png');
     }
     create(){
+        this.song = this.sound.add('level2song');
+        this.song.play({
+            volume: 0.05,
+            loop: true
+        });
         this.cameras.main.fadeIn(1000);
         this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
         this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
@@ -222,10 +252,18 @@ class Level2 extends Phaser.Scene{
         this.count++;
         this.scoreText.setText('Score: ' + this.count + '/20');
         if (this.count == 10){
-            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+            this.transitiontext = this.add.text(this.Dandy.x, this.Dandy.y, 'Press Space to End Level.').setFontSize(30).setColor('#FFFFFF').setFontStyle('bold');
             
         } else if (this.count == 20){
             this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('EndScene2', {count: this.count}); 
             });
@@ -259,6 +297,14 @@ class Level2 extends Phaser.Scene{
         //change this
         if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
             this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 900,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('EndScene2', {count: this.count}); 
             });
@@ -291,12 +337,19 @@ class Level3 extends Phaser.Scene{
     constructor(){
         super('level3')
         this.count = 0;
+        this.song = null;
     }
     preload(){
+        this.load.audio('level3song','./level3.mp3');
         this.load.image('Scene 3', './Scene 3.png');
         this.load.image('Note', './Music Note.png');
     }
     create(){
+        this.song = this.sound.add('level3song');
+        this.song.play({
+            volume: 0.05,
+            loop: true
+        });
         this.cameras.main.fadeIn(1000);
         this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
         this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
@@ -347,11 +400,19 @@ class Level3 extends Phaser.Scene{
         element.destroy(); 
         this.count++;
         this.scoreText.setText('Score: ' + this.count + '/20');
-        if (this.count == 1){
+        if (this.count == 10){
             this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
             
-        } else if (this.count == 10){
+        } else if (this.count == 20){
             this.cameras.main.fadeOut(1000); 
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('EndScene3', {count: this.count}); 
             });
@@ -384,6 +445,14 @@ class Level3 extends Phaser.Scene{
         }
         //change this
         if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+            this.tweens.add({
+                targets: this.song,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                  this.song.stop();
+                }
+              });
             this.cameras.main.fadeOut(1000); 
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('EndScene3', {count: this.count}); 
