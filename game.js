@@ -144,7 +144,7 @@ class Level1 extends Phaser.Scene {
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -295,7 +295,7 @@ class Level2 extends Phaser.Scene{
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
             this.cameras.main.fadeOut(1000); 
             this.tweens.add({
                 targets: this.song,
@@ -444,7 +444,7 @@ class Level3 extends Phaser.Scene{
             this.Dandy.setAccelerationY(0);
         }
         //change this
-        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 0){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
             this.tweens.add({
                 targets: this.song,
                 volume: 0,
@@ -485,9 +485,6 @@ class LevelEnd3 extends Phaser.Scene {
 new Phaser.Game({
     physics: {
         default: 'arcade',
-        arcade: {
-            debug: true
-        }
     },
 
     scale: {
