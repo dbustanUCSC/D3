@@ -24,7 +24,6 @@ class Intro extends Phaser.Scene {
             }
           });
         this.cameras.main.fadeOut(1000);
-        
         this.cameras.main.once('camerafadeoutcomplete', () => {
             this.scene.start('level1');
         });
@@ -35,34 +34,41 @@ class Intro extends Phaser.Scene {
 class Level1 extends Phaser.Scene {
     constructor(){
         super('level1');
+        this.count = 0;
     }
-    handleInteraction(dandy, element) {
-        // Perform the desired interaction
-        element.destroy(); // Destroy the element when touched
-        // Add your custom interaction code here
-    }
+    
     preload(){
         this.load.image('Scene 1', './Scene 1.png');
         this.load.image('Dandy', './Main Character.png');
         this.load.image('coin', './Coint.png');
     }
     create(){
-        this.cursors = this.input.keyboard.createCursorKeys();
         this.cameras.main.fadeIn(1000);
         this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
         this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
-        // Create the background image centered on the screen
+        this.cursors = this.input.keyboard.createCursorKeys();
         let Background = this.add.image(0, 0, 'Scene 1');
         Background.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
+        this.Dandy =  this.physics.add.sprite(this.cameras.main.centerX,this.cameras.main.centerY, 'Dandy');
+        this.Dandy.setScale(0.3);
+        this.Dandy.setDepth(4);
+        //this.container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY);
+        //this.container.add(this.Dandy);
         this.add.image(0, 0, 'Scene 1').setOrigin(0);
         this.add.image(2560, 0, 'Scene 1').setOrigin(0).setFlipX(true);
         this.add.image(0, 1440, 'Scene 1').setOrigin(0).setFlipY(true);
         this.add.image(2560, 1440, 'Scene 1').setOrigin(0).setFlipX(true).setFlipY(true);
-        // Create the Dandy sprite centered on the screen
-        this.Dandy = this.physics.add.sprite(0, 0, 'Dandy');
+        this.Dandy.setCollideWorldBounds(true);
+        this.scoreText = this.add.text(0, 0, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        //this.container.add(this.scoreText);
+        this.cameras.main.setZoom(4);
+        this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560 *2, 1440*2);
+        /*this.Dandy = this.physics.add.sprite(0, 0, 'Dandy');
+        this.Dandy.setDepth(1);
+        //let container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY)
+        //container.add(this.Dandy);
         this.Dandy.setScale(0.3);
-        this.Dandy.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
-
+        //this.Dandy.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
         // Set the world bounds and enable collision with the world bounds
         this.Dandy.setCollideWorldBounds(true);
         this.cameras.main.setZoom(4);
@@ -70,7 +76,9 @@ class Level1 extends Phaser.Scene {
         
         // Start the camera following the Dandy sprite, centered on the screen
         this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560, 1440);
-        
+        this.count = 0;
+        this.scoreText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        this.scoreText.setDepth(1);*/
         for (let i = 0; i < 20; i++) {
             let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
             let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
@@ -81,14 +89,30 @@ class Level1 extends Phaser.Scene {
             this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
         }
     }
+    handleInteraction(dandy, element) {
+        element.destroy(); 
+        this.count++;
+        this.scoreText.setText('Score: ' + this.count + '/20');
+        if (this.count == 10){
+            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+            
+        } else if (this.count == 20){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene1', {count: this.count}); 
+            });
+        }
+    }
     update(){
+        
+        this.scoreText.x = this.Dandy.x - 100;
+        this.scoreText.y = this.Dandy.y - 100;
         this.Dandy.setMaxVelocity(200);
         this.Dandy.setDrag(500);
         if (this.cursors.left.isDown)
         {
             this.Dandy.setAccelerationX(-100);
-        }
-        else if (this.cursors.right.isDown)
+        } else if (this.cursors.right.isDown)
         {
             this.Dandy.setAccelerationX(100);
         } else {
@@ -97,15 +121,296 @@ class Level1 extends Phaser.Scene {
 
         if (this.cursors.up.isDown)
         {
-            this.Dandy.setAccelerationY(-50);
-        }
-        else if (this.cursors.down.isDown)
+            this.Dandy.setAccelerationY(-100);
+        } else if (this.cursors.down.isDown)
         {
-            this.Dandy.setAccelerationY(50);
+            this.Dandy.setAccelerationY(100);
         } else {
             this.Dandy.setAccelerationY(0);
         }
-      
+        //change this
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene1', {count: this.count, level: this.level}); 
+            });
+        }
+    }
+}
+
+class LevelEnd1 extends Phaser.Scene {
+    constructor(){
+        super('EndScene1');
+    }
+    preload(){
+        this.load.image('completescreen','./Complete Screen.png')
+    }
+    create(){
+        const count = this.scene.settings.data.count;
+        this.add.image(0, 0, 'completescreen').setOrigin(0).setScale(2);
+        this.EndScore = this.add.text(this.cameras.main.centerX+200, this.cameras.main.centerY + 100 , count).setFontSize(300)
+        this.Msg = this.add.text(this.cameras.main.centerX - 2300, this.cameras.main.centerY + 700, "Press Space to go to next level!").setFontSize(250)
+    }
+    update(){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('level2');
+            });
+        }
+    }
+}
+
+class Level2 extends Phaser.Scene{
+    constructor(){
+        super('level2')
+        this.count = 0;
+    }
+    preload(){
+        this.load.image('Scene 2', './Scene 2.png');
+        this.load.image('Cookie', './Cookie.png');
+    }
+    create(){
+        this.cameras.main.fadeIn(1000);
+        this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
+        this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
+        this.cursors = this.input.keyboard.createCursorKeys();
+        let Background = this.add.image(0, 0, 'Scene 2');
+        Background.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
+        this.Dandy =  this.physics.add.sprite(this.cameras.main.centerX,this.cameras.main.centerY, 'Dandy');
+        this.Dandy.setScale(0.3);
+        this.Dandy.setDepth(4);
+        //this.container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY);
+        //this.container.add(this.Dandy);
+        this.add.image(0, 0, 'Scene 2').setOrigin(0);
+        this.add.image(2560, 0, 'Scene 2').setOrigin(0).setFlipX(true);
+        this.add.image(0, 1440, 'Scene 2').setOrigin(0).setFlipY(true);
+        this.add.image(2560, 1440, 'Scene 2').setOrigin(0).setFlipX(true).setFlipY(true);
+        this.Dandy.setCollideWorldBounds(true);
+        this.scoreText = this.add.text(0, 0, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        //this.container.add(this.scoreText);
+        this.cameras.main.setZoom(4);
+        this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560 *2, 1440*2);
+        /*this.Dandy = this.physics.add.sprite(0, 0, 'Dandy');
+        this.Dandy.setDepth(1);
+        //let container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY)
+        //container.add(this.Dandy);
+        this.Dandy.setScale(0.3);
+        //this.Dandy.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
+        // Set the world bounds and enable collision with the world bounds
+        this.Dandy.setCollideWorldBounds(true);
+        this.cameras.main.setZoom(4);
+        //this.cameras.main.setBounds(0, 0, 2560, 1440);
+        
+        // Start the camera following the Dandy sprite, centered on the screen
+        this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560, 1440);
+        this.count = 0;
+        this.scoreText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        this.scoreText.setDepth(1);*/
+        for (let i = 0; i < 20; i++) {
+            let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            let element = this.physics.add.image(x, y, 'Cookie');
+            element.setScale(0.2);
+            // Set the origin to the center of the element for better positioning
+            element.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
+        }
+    }
+    handleInteraction(dandy, element) {
+        element.destroy(); 
+        this.count++;
+        this.scoreText.setText('Score: ' + this.count + '/20');
+        if (this.count == 10){
+            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+            
+        } else if (this.count == 20){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene2', {count: this.count}); 
+            });
+        }
+    }
+    update(){
+        
+        this.scoreText.x = this.Dandy.x - 100;
+        this.scoreText.y = this.Dandy.y - 100;
+        this.Dandy.setMaxVelocity(200);
+        this.Dandy.setDrag(500);
+        if (this.cursors.left.isDown)
+        {
+            this.Dandy.setAccelerationX(-100);
+        } else if (this.cursors.right.isDown)
+        {
+            this.Dandy.setAccelerationX(100);
+        } else {
+            this.Dandy.setAccelerationX(0);
+        }
+
+        if (this.cursors.up.isDown)
+        {
+            this.Dandy.setAccelerationY(-100);
+        } else if (this.cursors.down.isDown)
+        {
+            this.Dandy.setAccelerationY(100);
+        } else {
+            this.Dandy.setAccelerationY(0);
+        }
+        //change this
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene2', {count: this.count}); 
+            });
+        }
+    }
+
+}
+
+class LevelEnd2 extends Phaser.Scene {
+    constructor(){
+        super('EndScene2');
+    }
+    create(){
+        const count = this.scene.settings.data.count;
+        this.add.image(0, 0, 'completescreen').setOrigin(0).setScale(2);
+        this.EndScore = this.add.text(this.cameras.main.centerX+200, this.cameras.main.centerY + 100 , count).setFontSize(300)
+        this.Msg = this.add.text(this.cameras.main.centerX - 2300, this.cameras.main.centerY + 700, "Press Space to go to next level!").setFontSize(250)
+    }
+    update(){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('level3');
+            });
+        }
+    }
+}
+
+class Level3 extends Phaser.Scene{
+    constructor(){
+        super('level3')
+        this.count = 0;
+    }
+    preload(){
+        this.load.image('Scene 3', './Scene 3.png');
+        this.load.image('Note', './Music Note.png');
+    }
+    create(){
+        this.cameras.main.fadeIn(1000);
+        this.cameras.main.setBounds(0, 0, 2560 * 2, 1440 * 2);
+        this.physics.world.setBounds(0, 0, 2560 * 2, 1440 * 2);
+        this.cursors = this.input.keyboard.createCursorKeys();
+        let Background = this.add.image(0, 0, 'Scene 3');
+        Background.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
+        this.Dandy =  this.physics.add.sprite(this.cameras.main.centerX,this.cameras.main.centerY, 'Dandy');
+        this.Dandy.setScale(0.3);
+        this.Dandy.setDepth(4);
+        //this.container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY);
+        //this.container.add(this.Dandy);
+        this.add.image(0, 0, 'Scene 3').setOrigin(0);
+        this.add.image(2560, 0, 'Scene 3').setOrigin(0).setFlipX(true);
+        this.add.image(0, 1440, 'Scene 3').setOrigin(0).setFlipY(true);
+        this.add.image(2560, 1440, 'Scene 3').setOrigin(0).setFlipX(true).setFlipY(true);
+        this.Dandy.setCollideWorldBounds(true);
+        this.scoreText = this.add.text(0, 0, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        //this.container.add(this.scoreText);
+        this.cameras.main.setZoom(4);
+        this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560 *2, 1440*2);
+        /*this.Dandy = this.physics.add.sprite(0, 0, 'Dandy');
+        this.Dandy.setDepth(1);
+        //let container = this.add.container(this.cameras.main.centerX, this.cameras.main.centerY)
+        //container.add(this.Dandy);
+        this.Dandy.setScale(0.3);
+        //this.Dandy.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
+        // Set the world bounds and enable collision with the world bounds
+        this.Dandy.setCollideWorldBounds(true);
+        this.cameras.main.setZoom(4);
+        //this.cameras.main.setBounds(0, 0, 2560, 1440);
+        
+        // Start the camera following the Dandy sprite, centered on the screen
+        this.cameras.main.startFollow(this.Dandy, true, 0.05, 0.05, 0, 0, 2560, 1440);
+        this.count = 0;
+        this.scoreText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Score: 0/20', { fontSize: '32px', fill: '#000000' });
+        this.scoreText.setDepth(1);*/
+        for (let i = 0; i < 20; i++) {
+            let x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            let y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            let element = this.physics.add.image(x, y, 'Note');
+            element.setScale(0.2);
+            // Set the origin to the center of the element for better positioning
+            element.setOrigin(0.5);
+            this.physics.add.overlap(this.Dandy, element, this.handleInteraction, null, this);
+        }
+    }
+    handleInteraction(dandy, element) {
+        element.destroy(); 
+        this.count++;
+        this.scoreText.setText('Score: ' + this.count + '/20');
+        if (this.count == 1){
+            this.transitiontext = this.add.text(this.Dandy.x - 100, this.Dandy.y - 300, 'Press Space to End Level.').setFontSize(30).setColor('0x000000').setFontStyle('bold');
+            
+        } else if (this.count == 10){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene3', {count: this.count}); 
+            });
+        }
+    }
+    update(){
+        
+        this.scoreText.x = this.Dandy.x - 100;
+        this.scoreText.y = this.Dandy.y - 100;
+        this.Dandy.setMaxVelocity(200);
+        this.Dandy.setDrag(500);
+        if (this.cursors.left.isDown)
+        {
+            this.Dandy.setAccelerationX(-100);
+        } else if (this.cursors.right.isDown)
+        {
+            this.Dandy.setAccelerationX(100);
+        } else {
+            this.Dandy.setAccelerationX(0);
+        }
+
+        if (this.cursors.up.isDown)
+        {
+            this.Dandy.setAccelerationY(-100);
+        } else if (this.cursors.down.isDown)
+        {
+            this.Dandy.setAccelerationY(100);
+        } else {
+            this.Dandy.setAccelerationY(0);
+        }
+        //change this
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) && this.count >= 10){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('EndScene3', {count: this.count}); 
+            });
+        }
+    }
+}
+
+
+class LevelEnd3 extends Phaser.Scene {
+    constructor(){
+        super('EndScene3');
+    }
+
+    create(){
+        const count = this.scene.settings.data.count;
+        this.add.image(0, 0, 'completescreen').setOrigin(0).setScale(2);
+        this.EndScore = this.add.text(this.cameras.main.centerX+200, this.cameras.main.centerY + 100 , count).setFontSize(300)
+        this.Msg = this.add.text(this.cameras.main.centerX - 2300, this.cameras.main.centerY + 700, "Press Space to go to next level!").setFontSize(250)
+    }
+    update(){
+        if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))){
+            this.cameras.main.fadeOut(1000); 
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('intro');
+            });
+        }
     }
 }
 new Phaser.Game({
@@ -125,6 +430,6 @@ new Phaser.Game({
         width: 2560 * 2,
         height: 1440 * 2
     },
-    scene: [Intro, Level1],
+    scene: [Intro, Level1, Level2, Level3, LevelEnd1, LevelEnd2, LevelEnd3],
     title: "Dandy Game",
 });
