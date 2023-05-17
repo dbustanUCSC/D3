@@ -41,7 +41,7 @@ class Level1 extends Phaser.Scene {
     preload(){
         this.load.image('Scene 1', './assets/Scene 1.png');
         this.load.audio('Xiu Xiu','./assets/Normal Love.mp3');
-        this.load.image('Dandy', './assets/Main character.png');
+        this.load.image('Dandy', './assets/Maincharacter.png');
         this.load.image('coin', './assets/Coint.png');
     }
     create(){
